@@ -42,8 +42,8 @@ export default function GameTable() {
 
   if (!gameState) {
     return (
-      <div className="h-full flex items-center justify-center" style={{ background: '#0a1a0e' }}>
-        <div className="text-5xl" style={{ animation: 'dealIn 0.8s ease infinite alternate' }}>♠</div>
+      <div className="h-full flex items-center justify-center" style={{ background: 'radial-gradient(ellipse at center, #1a1a2e 0%, #0d0d1a 100%)' }}>
+        <div className="text-5xl text-gold" style={{ animation: 'cardDeal 0.8s ease infinite alternate' }}>♠</div>
       </div>
     );
   }
@@ -78,7 +78,8 @@ export default function GameTable() {
   }, [showdownData]);
 
   return (
-    <div className="h-full flex flex-col relative overflow-hidden" style={{ background: '#0a1a0e' }}>
+    <div className="h-full flex flex-col relative overflow-hidden"
+      style={{ background: 'radial-gradient(ellipse at center, #1a1a2e 0%, #0d0d1a 100%)' }}>
 
       {/* ── TOP BAR ── */}
       <div className="flex items-center justify-between px-3 pt-10 pb-1 z-20 flex-shrink-0">
@@ -124,12 +125,10 @@ export default function GameTable() {
 
       {/* ── TABLE AREA ── */}
       <div className="flex-1 relative min-h-0">
-        {/* Felt oval */}
-        <div className="absolute inset-3 rounded-[45%] felt-table border-[3px]"
-          style={{ borderColor: '#5a3a00', boxShadow: '0 0 0 3px #3a2400, inset 0 0 60px rgba(0,0,0,0.4)' }}>
-
-          {/* Rail pattern (subtle inner border) */}
-          <div className="absolute inset-2 rounded-[45%] border border-white/[0.04]" />
+        {/* WSOP-style poker table */}
+        <div className="poker-table">
+          <div className="betting-line" />
+          <span className="watermark">POKER CLUB</span>
         </div>
 
         {/* Player seats */}
