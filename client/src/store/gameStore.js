@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { io } from 'socket.io-client';
+import { Sounds } from '../utils/SoundEngine';
 
 const SOCKET_URL = import.meta.env.VITE_SERVER_URL || '';
 
@@ -68,7 +69,9 @@ const useGameStore = create((set, get) => ({
 
       if (isShowdown) {
         set({ gameState: state, showdownData: state, timer: null });
-        setTimeout(() => set({ showdownData: null }), 5000);
+        // Longer display for full showdowns
+        const delay = state.results?.length > 0 ? 6500 : 4000;
+        setTimeout(() => set({ showdownData: null }), delay);
       } else {
         set({ gameState: state });
         if (state.phase === 'waiting') set({ timer: null });
@@ -97,31 +100,39 @@ const useGameStore = create((set, get) => ({
 
   _handleSounds(prev, next) {
     if (!get().soundEnabled) return;
-    // Basic Web Audio API sounds
+    const myId = get().player?.id;
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      // Phase transitions
+      if (next.phase === 'flop' && prev?.phase === 'preflop') Sounds.communityCard();
+      else if (next.phase === 'turn' && prev?.phase === 'flop') Sounds.communityCard();
+      else if (next.phase === 'river' && prev?.phase === 'turn') Sounds.communityCard();
+      // Showdown: win or lose
+      else if (next.phase === 'showdown' || next.earlyWin) {
+        const iWon = next.winners?.some(w => w.id === myId);
+        if (next.earlyWin) {
+          if (iWon) Sounds.earlyWin(); else Sounds.chipsToPot();
+        } else {
+          setTimeout(() => { if (iWon) Sounds.win(); else Sounds.lose(); }, 300);
+        }
+      }
+      // New hand
+      else if (next.phase === 'preflop' && prev?.phase === 'waiting') Sounds.newHand();
+      // Your turn
+      else if (next.currentPlayerId === myId && prev?.currentPlayerId !== myId) Sounds.yourTurn();
 
-      const beep = (freq, dur, vol = 0.15) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.frequency.value = freq;
-        osc.type = 'sine';
-        gain.gain.setValueAtTime(vol, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-        osc.start();
-        osc.stop(ctx.currentTime + dur);
-      };
-
-      if (next.phase === 'flop' && prev?.phase === 'preflop') beep(440, 0.15);
-      else if (next.phase === 'turn' && prev?.phase === 'flop') beep(480, 0.15);
-      else if (next.phase === 'river' && prev?.phase === 'turn') beep(520, 0.15);
-      else if (next.phase === 'showdown') { beep(660, 0.2); setTimeout(() => beep(880, 0.3), 200); }
-      else if (next.currentPlayerId !== prev?.currentPlayerId) beep(330, 0.1, 0.08);
-    } catch {}
+      // Detect action from log
+      const prevLogLen = prev?.actionLog?.length || 0;
+      const newLogs = next.actionLog?.slice(prevLogLen) || [];
+      for (const log of newLogs) {
+        if (log.actor === 'system') continue;
+        const msg = log.message?.toLowerCase() || '';
+        if (msg.includes('fold')) Sounds.fold();
+        else if (msg.includes('check')) Sounds.check();
+        else if (msg.includes('call')) Sounds.chipBet();
+        else if (msg.includes('raise') || msg.includes('raise')) Sounds.raise();
+        else if (msg.includes('all in')) Sounds.allIn();
+      }
+    } catch (e) { /* silent */ }
   },
 
   // ── Auth ───────────────────────────────────────────────────────────

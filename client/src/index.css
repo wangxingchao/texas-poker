@@ -156,18 +156,46 @@ html, body, #root {
 
 /* ── Showdown overlay ── */
 .showdown-overlay {
-  animation: fadeInScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.85) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 .winner-shine {
-  animation: shine 1.5s ease-in-out infinite;
+  animation: shine 1.2s ease-in-out infinite;
 }
 @keyframes shine {
-  0%, 100% { box-shadow: 0 0 20px rgba(245,200,66,0.4); }
-  50% { box-shadow: 0 0 40px rgba(245,200,66,0.9), 0 0 80px rgba(245,200,66,0.4); }
+  0%, 100% { box-shadow: 0 0 15px rgba(245,200,66,0.4); }
+  50% { box-shadow: 0 0 35px rgba(245,200,66,0.9), 0 0 70px rgba(245,200,66,0.3); }
+}
+
+/* Chip flying into center */
+.chip-fly-in {
+  animation: chipFlyIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes chipFlyIn {
+  0% { transform: scale(0.3) translateY(80px); opacity: 0; }
+  60% { transform: scale(1.2) translateY(-10px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Chip count rolling up */
+.chip-count-in {
+  animation: chipCountIn 0.4s ease-out 0.3s both;
+}
+@keyframes chipCountIn {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Screen flash for big wins */
+.win-flash {
+  animation: winFlash 0.3s ease-out;
+}
+@keyframes winFlash {
+  0% { background: rgba(245,200,66,0.3); }
+  100% { background: transparent; }
 }
 
 /* ── Pot animation ── */

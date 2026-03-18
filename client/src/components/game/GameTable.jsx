@@ -69,6 +69,14 @@ export default function GameTable() {
     if (isMyTurn && navigator.vibrate) navigator.vibrate(100);
   }, [isMyTurn]);
 
+  // Haptic on showdown
+  useEffect(() => {
+    if (showdownData && navigator.vibrate) {
+      const iWon = showdownData.winners?.some(w => w.id === player?.id);
+      navigator.vibrate(iWon ? [100, 50, 100, 50, 200] : [200]);
+    }
+  }, [showdownData]);
+
   return (
     <div className="h-full flex flex-col relative overflow-hidden" style={{ background: '#0a1a0e' }}>
 
