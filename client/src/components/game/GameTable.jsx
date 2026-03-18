@@ -5,6 +5,7 @@ import ActionBar from './ActionBar';
 import ShowdownOverlay from './ShowdownOverlay';
 import RebuyModal from './RebuyModal';
 import HandHistory from './HandHistory';
+import AIHints from './AIHints';
 import { CardGroup } from './Card';
 
 const PHASE_LABEL = {
@@ -222,6 +223,20 @@ export default function GameTable() {
             className="text-gold text-[11px] font-bold px-3 py-1 rounded-full bg-gold/10 border border-gold/30 active:scale-95">
             + Rebuy
           </button>
+        </div>
+      )}
+
+      {/* ── AI HINTS ── */}
+      {isMyTurn && myPlayer?.holeCards?.[0] && (
+        <div className="flex-shrink-0 z-10">
+          <AIHints
+            holeCards={myPlayer.holeCards}
+            communityCards={communityCards}
+            phase={phase}
+            callAmount={validActions?.find(a => a.action === 'call')?.amount || 0}
+            pot={totalPot}
+            chips={myPlayer.chips}
+          />
         </div>
       )}
 
